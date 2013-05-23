@@ -9,6 +9,7 @@
 			<input id="fileChooser" type="file"></input>
 		</div>
 		<a class="btn btn-inverse" href="#" id="ok">Upload</a>
+		<a class="btn btn-danger" href="#" id="cancel">Cancel</a>
 		<p>
 			<div id="progress" class="progress" style="visibility: hidden">
   				<div id="progressIndication" class="bar"></div>
@@ -29,6 +30,7 @@
 		var fileChooser = document.getElementById("fileChooser");
 		var progressBar = document.getElementById("progress");
 		var progressIndication = document.getElementById("progressIndication");
+		var cancel = document.getElementById("cancel");
 		var img = document.getElementById('img');
 
 		var imgup = new Imgup('847de02274cba30');
@@ -40,7 +42,7 @@
 			progressBar.classList.add('progress-striped');
 			img.src = '';
 
-			imgup.upload(fileChooser.files[0])
+			var handle = imgup.upload(fileChooser.files[0])
 			.progress(function(ratio) {
 				console.log('prog');
 				progressIndication.style.width = 100 * ratio + '%';
@@ -55,6 +57,16 @@
 				progressBar.classList.remove('progress-striped');
 				img.src = 'http://th07.deviantart.net/fs43/PRE/i/2009/096/3/c/Failboat_by_uberjoe19.jpg';
 			});
+
+			var cancelListener = function() {
+				cancel.removeEventListener('click', cancelListener);
+				handle.cancel();
+			};
+			cancel.addEventListener('click', cancelListener);
+		});
+
+		imgup.credits().then(function(r) {
+			console.log(r);
 		});
 	</script>
 </body>

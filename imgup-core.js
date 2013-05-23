@@ -1,12 +1,15 @@
+// Author tantaman
+// License MIT
+// http://github.com/tantaman/imgup
 ;(function(root) {
 	'use strict';
 
 	var routes = {
-		upload: 'https://api.imgur.com/3/upload'
+		upload: 'https://api.imgur.com/3/upload',
+		credits: 'https://api.imgur.com/3/credits'
 	};
 
-	function UploadHandler(subscr, xhr) {
-		this._subscr = subscr;
+	function UploadHandler(xhr) {
 		this._xhr = xhr;
 
 		xhr.onload = handlerCallbacks.onload.bind(this);
@@ -23,8 +26,6 @@
 
 	var handlerCallbacks = {
 		onload: function() {
-			this._subscr();
-			this._subscr = null;
 			var result = JSON.parse(this._xhr.responseText);
 
 			if (!result.success) {
@@ -44,8 +45,6 @@
 		},
 
 		onerror: function(e) {
-			if (this._subscr != null)
-				this._subscr();
 			this._errorBacks.forEach(function(cb) {
 				cb(e);
 			});
@@ -54,7 +53,7 @@
 
 	UploadHandler.prototype = {
 		cancel: function() {
-			this._subscr();
+			this._xhr.abort();
 			return this;
 		},
 
@@ -81,10 +80,7 @@
 	};
 
 	function Imgup(clientId) {
-		this._nextTaskId = 0;
 		this.clientId = clientId;
-
-		this._tasks = {};
 	}
 
 	Imgup.prototype = {
@@ -96,13 +92,21 @@
 			xhr.open('POST', routes.upload);
 			xhr.setRequestHeader('Authorization', 'Client-ID ' + this.clientId);
 
-			var taskId = this._nextTaskId++;
 			var self = this;
-			var handler = this._tasks[this._nextTaskId] = new UploadHandler(function() {
-				delete self._tasks[taskId];
-			}, xhr);
+			var handler = new UploadHandler(xhr);
 
 			xhr.send(form);
+
+			return handler;
+		},
+
+		credits: function() {
+			var xhr = new XMLHttpRequest();
+			xhr.open('GET', routes.credits);
+			xhr.setRequestHeader('Authorization', 'Client-ID ' + this.clientId);
+
+			var handler = new UploadHandler(xhr);
+			xhr.send();
 
 			return handler;
 		}
