@@ -38,7 +38,7 @@
 		},
 
 		onprogress: function(e) {
-			var completed = e.loaded / e.totalSize;
+			var completed = e.loaded / e.total;
 			this._progressBacks.forEach(function(cb) {
 				cb(completed, e);
 			});
