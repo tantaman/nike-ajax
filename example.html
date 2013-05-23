@@ -1,0 +1,61 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.no-icons.min.css" rel="stylesheet">
+</head>
+<body>
+	<div class="container">
+		<div class="form-inline">
+			<input id="fileChooser" type="file"></input>
+		</div>
+		<a class="btn btn-inverse" href="#" id="ok">Upload</a>
+		<p>
+			<div id="progress" class="progress" style="visibility: hidden">
+  				<div id="progressIndication" class="bar"></div>
+			</div>
+		</p>
+		<p>
+			<div class="well">
+				<img id="img"></img>
+			</div>
+		</p>
+	</div>
+
+	<script src="http://code.jquery.com/jquery-2.0.0.min.js"></script>
+	<script src="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
+	<script src="imgup-core.js"></script>
+	<script>
+		var ok = document.getElementById("ok");
+		var fileChooser = document.getElementById("fileChooser");
+		var progressBar = document.getElementById("progress");
+		var progressIndication = document.getElementById("progressIndication");
+		var img = document.getElementById('img');
+
+		var imgup = new Imgup('847de02274cba30');
+		ok.addEventListener('click', function() {
+			console.log('started');
+			progressBar.style.visibility = 'visible';
+			progressIndication.style.width = '0%';
+			progressBar.classList.add('active');
+			progressBar.classList.add('progress-striped');
+			img.src = '';
+
+			imgup.upload(fileChooser.files[0])
+			.progress(function(ratio) {
+				console.log('prog');
+				progressIndication.style.width = 100 * ratio + '%';
+			}).then(function(result) {
+				console.log('complete');
+				progressIndication.style.width = '100%';
+				progressBar.classList.remove('active');
+				progressBar.classList.remove('progress-striped');
+				img.src = result.data.link;
+			}, function() {
+				progressBar.classList.remove('active');
+				progressBar.classList.remove('progress-striped');
+				img.src = 'http://th07.deviantart.net/fs43/PRE/i/2009/096/3/c/Failboat_by_uberjoe19.jpg';
+			});
+		});
+	</script>
+</body>
+</html>
